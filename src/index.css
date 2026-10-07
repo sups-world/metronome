@@ -1,0 +1,45 @@
+:root {
+  /* Color Palette - Minimalist Slate / Modern Cyber */
+  --bg-primary: #090a0f;
+  --bg-secondary: #12141c;
+  --bg-card: #1a1d28;
+  --bg-card-hover: #222634;
+  
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  
+  /* Accents */
+  --accent-primary: #6366f1; /* Indigo glow */
+  --accent-hover: #4f46e5;
+  --accent-active: #22c55e;  /* Pulse green for beat flash */
+  --accent-downbeat: #f43f5e;/* Rose accent for Beat 1 */
+
+  /* Shadows & Borders */
+  --border-subtle: #2d3345;
+  --glow-primary: 0 0 25px rgba(99, 102, 241, 0.25);
+  --glow-active: 0 0 20px rgba(34, 197, 94, 0.6);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  width: 100%;
+  max-width: 480px;
+  padding: 24px;
+}
