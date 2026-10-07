@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useMetronome } from './hooks/useMetronome';
+import { useTapTempo } from './hooks/useTapTempo';
 
 export default function App() {
   const {
@@ -11,9 +12,47 @@ export default function App() {
     togglePlay,
   } = useMetronome();
 
+  const [isTapping, setIsTapping] = useState(false);
+
+  // Handle calculated BPM from tap tempo
+  const handleBpmCalculated = useCallback((newBpm: number) => {
+    setBpm(newBpm);
+  }, [setBpm]);
+
+  const { registerTap } = useTapTempo({
+    onBpmCalculated: handleBpmCalculated,
+  });
+
+  const handleTap = () => {
+    registerTap();
+    setIsTapping(true);
+    setTimeout(() => setIsTapping(false), 120); // Visual feedback pulse
+  };
+
   const handleBpmChange = (delta: number) => {
     setBpm(Math.min(280, Math.max(30, bpm + delta)));
   };
+
+  // Keyboard shortcut listener
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore keypresses if user is typing in an input
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      if (e.code === 'Space') {
+        e.preventDefault();
+        togglePlay();
+      } else if (e.code === 'KeyT') {
+        e.preventDefault();
+        handleTap();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [togglePlay, registerTap]);
 
   return (
     <div style={styles.container}>
@@ -77,22 +116,35 @@ export default function App() {
         />
       </div>
 
-      {/* Big Play Button */}
-      <button
-        onClick={togglePlay}
-        style={{
-          ...styles.playButton,
-          backgroundColor: isPlaying ? 'var(--accent-downbeat)' : 'var(--accent-primary)',
-          boxShadow: isPlaying ? '0 0 25px rgba(244, 63, 94, 0.4)' : 'var(--glow-primary)',
-        }}
-      >
-        {isPlaying ? 'STOP' : 'START'}
-      </button>
+      {/* Action Row: TAP & PLAY/STOP */}
+      <div style={styles.actionRow}>
+        <button
+          onClick={handleTap}
+          style={{
+            ...styles.tapButton,
+            backgroundColor: isTapping ? 'var(--accent-primary)' : 'var(--bg-card)',
+            borderColor: isTapping ? 'var(--accent-primary)' : 'var(--border-subtle)',
+            transform: isTapping ? 'scale(0.96)' : 'scale(1)',
+          }}
+        >
+          TAP <span style={styles.shortcutHint}>(T)</span>
+        </button>
+
+        <button
+          onClick={togglePlay}
+          style={{
+            ...styles.playButton,
+            backgroundColor: isPlaying ? 'var(--accent-downbeat)' : 'var(--accent-primary)',
+            boxShadow: isPlaying ? '0 0 25px rgba(244, 63, 94, 0.4)' : 'var(--glow-primary)',
+          }}
+        >
+          {isPlaying ? 'STOP' : 'START'} <span style={styles.shortcutHint}>(Space)</span>
+        </button>
+      </div>
     </div>
   );
 }
 
-// Inline Styles Object for sleek dark components
 const styles: Record<string, React.CSSProperties> = {
   container: {
     backgroundColor: 'var(--bg-secondary)',
@@ -184,16 +236,46 @@ const styles: Record<string, React.CSSProperties> = {
     accentColor: 'var(--accent-primary)',
     cursor: 'pointer',
   },
-  playButton: {
+  actionRow: {
+    display: 'flex',
+    gap: '12px',
     width: '100%',
+  },
+  tapButton: {
+    flex: '1',
+    padding: '18px',
+    borderRadius: '16px',
+    border: '1px solid var(--border-subtle)',
+    color: 'var(--text-primary)',
+    fontSize: '15px',
+    fontWeight: '700',
+    letterSpacing: '1px',
+    cursor: 'pointer',
+    transition: 'all 0.1s ease',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '6px',
+  },
+  playButton: {
+    flex: '2',
     padding: '18px',
     borderRadius: '16px',
     border: 'none',
     color: '#ffffff',
-    fontSize: '16px',
+    fontSize: '15px',
     fontWeight: '800',
     letterSpacing: '2px',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '6px',
+  },
+  shortcutHint: {
+    fontSize: '11px',
+    fontWeight: '500',
+    opacity: 0.6,
   },
 };
