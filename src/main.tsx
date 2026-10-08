@@ -1,10 +1,14 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import App from './App'
 import './index.css'
-import App from './App.tsx'
+import { registerSW } from 'virtual:pwa-register'
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
+// Automatically register and update the service worker
+registerSW({ immediate: true })
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
     <App />
-  </StrictMode>,
+  </React.StrictMode>
 )
